@@ -132,7 +132,7 @@ class Player(wx.Frame):
     
     def __init__(self, title):
         wx.Frame.__init__(self, None, -1, title,
-                          pos=wx.DefaultPosition, size=(550, 500))
+                          pos=wx.DefaultPosition, size=(700, 550))
                           
         self.networkThread = Thread(target=checkNetwork)
         self.networkThread.start()
@@ -185,7 +185,7 @@ class Player(wx.Frame):
         box2.Add(play, flag=wx.RIGHT, border=5)
         box2.Add(pause)
         box2.Add(stop)
-        box2.Add(self.timetext)
+        box2.Add(self.timetext, flag=wx.LEFT|wx.TOP, border=5)
         box2.Add((-1, -1), 1)
         box2.Add(volume)
         box2.Add(self.volslider, flag=wx.TOP | wx.LEFT, border=5)
@@ -346,7 +346,7 @@ class Player(wx.Frame):
         time = self.player.get_time()
         self.timeslider.SetValue(time)
 
-        self.timetext.SetLabel("%s / %s" % (time/1000,length/1000))
+        self.timetext.SetLabel("%s / %s" % (formatSeconds(time/1000),formatSeconds(length/1000)))
     def OnToggleVolume(self, evt):
         """Mute/Unmute according to the audio button.
         """
