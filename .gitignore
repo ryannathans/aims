@@ -1,4 +1,8 @@
 *.py[cod]
+media
+osx
+win
+test.py
 
 # C extensions
 *.so

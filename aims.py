@@ -1,9 +1,20 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
-##### user editable variables below
+# import external libraries
+import wx # 2.8 on unix, 3.0 on windows (PySimpleApp deprecated idgaf)
+import wx.lib.newevent #needed for creating new events, not included in import wx
+import vlc
 
-isserver = False
+# import standard libraries
+import sys
+import os
+import user
+import socket
+import select
+import time
+import datetime
+from threading import Thread
 
 ##### client configuration
 serversocket = ('localhost', 6969) #host to connect to, port
@@ -27,22 +38,20 @@ hostsocket = ('0.0.0.0', 6969) #ip/host, port
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
-#
 
-# import external libraries
-import wx # 2.8 on unix, 3.0 on windows (PySimpleApp deprecated idgaf)
-import wx.lib.newevent #needed for creating new events, not included in import wx
-import vlc
+if len(sys.argv) == 2 and sys.argv[1] == 'server': isserver = True
+else: isserver  = False
 
-# import standard libraries
-import sys
-import os
-import user
-import socket
-import select
-import time
-import datetime
-from threading import Thread
+def formatSeconds(seconds):
+	hrdivmod = divmod(seconds, 3600)
+	hours = hrdivmod[0]
+	seconds = hrdivmod[1]
+	
+	mindivmod = divmod(seconds, 60)
+	minutes = mindivmod[0]
+	seconds = mindivmod[1]
+	
+	return "%02i:%02i:%02i" % (hours, minutes, seconds)
 
 def sendData(sock, data):
     while select.select([],[conn],[],0)[1] != [] and sock.send(data) != 1: 
@@ -242,16 +251,17 @@ class Player(wx.Frame):
         
         if not netevent:
             dlg = wx.FileDialog(self, "Choose a file", user.home, "", "*.*", wx.OPEN)
-            print("displaying dialog")
+            returnstatus = dlg.ShowModal() == wx.ID_OK
 
-        if not netevent and dlg.ShowModal() == wx.ID_OK:
+		
+        if not netevent and returnstatus:
             dirname = dlg.GetDirectory()
             filename = dlg.GetFilename()
         elif netevent:
             dirname = os.getcwdu()
             filename = evt.filename
         
-        if (not netevent and dlg.ShowModal() == wx.ID_OK) or netevent:
+        if (not netevent and returnstatus) or netevent:
             # Creation
             self.Media = self.Instance.media_new(unicode(os.path.join(dirname, filename)))
             self.player.set_media(self.Media)
